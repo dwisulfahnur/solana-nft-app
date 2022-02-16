@@ -7,7 +7,6 @@ import { getParsedNftAccountsByOwner, } from "@nfteyez/sol-rayz";
 const NFTList = () => {
     const initNfts: Array<any> = []
     const [nfts, setNfts] = useState(initNfts)
-    const [imageLoaded, setImageLoaded] = useState(true)
     const [loading, setLoading] = useState(true)
 
     const { publicKey, connected } = useWallet()
@@ -20,7 +19,16 @@ const NFTList = () => {
                     publicAddress: publicKey?.toBase58(),
                     connection: connection
                 })
-                setNfts(newNfts)
+                newNfts.forEach(nft => {
+                    axios.get(nft.data.uri).then(res => {
+                        let item: any = nft
+                        item.imageSrc = res.data.image
+                        item.imageAlt = res.data.name
+                        setNfts(newNfts)
+                    }).catch(err => {
+                        console.error(err)
+                    })
+                })
             } else {
                 const newN = new Array()
                 setNfts(newN)
@@ -30,22 +38,6 @@ const NFTList = () => {
         })()
     }, [connected])
 
-    useLayoutEffect(() => {
-        let newnfts: any = new Array()
-        nfts.forEach(nft => {
-            axios.get(nft.data.uri).then(res => {
-                let item: any = nft
-                item.imageSrc = res.data.image
-                item.imageAlt = res.data.name
-                setNfts([...newnfts, item])
-                newnfts.push(item)
-            }).catch(err => {
-                console.error(err)
-                return null
-            })
-        })
-        setImageLoaded(true)
-    }, [imageLoaded])
     return (
         <div className="bg-white">
             <div className="max-w-2xl mx-auto lg:max-w-7xl">
