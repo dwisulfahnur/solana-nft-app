@@ -34,7 +34,6 @@ const NFTList = () => {
                 setNfts(newN)
             }
             setLoading(false)
-            setImageLoaded(false)
         })()
     }, [connected])
 
